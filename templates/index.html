@@ -217,6 +217,9 @@
                 </label>
                 <input type="file" name="file" id="fileInput" accept=".txt,.zip" required>
                 <p style="margin-top: 10px; color: #999; font-size: 0.9em;" id="fileName"></p>
+                <button type="button" id="autoSelectBtn" style="margin-top: 15px; width: auto; padding: 10px 20px; background: #667eea; font-size: 0.9em;">
+                    📂 Auto-select latest ZIP from Downloads
+                </button>
             </div>
 
             <div class="query-grid">
@@ -274,10 +277,57 @@
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
         const fileName = document.getElementById('fileName');
+        const autoSelectBtn = document.getElementById('autoSelectBtn');
 
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
                 fileName.textContent = '✓ ' + this.files[0].name;
+            }
+        });
+
+        // Auto-select latest ZIP from Downloads folder
+        autoSelectBtn.addEventListener('click', async function() {
+            try {
+                // Request access to Downloads directory
+                const dirHandle = await window.showDirectoryPicker({
+                    id: 'downloads',
+                    startIn: 'downloads',
+                    mode: 'read'
+                });
+
+                // Find all .zip files
+                const zipFiles = [];
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.zip')) {
+                        const file = await entry.getFile();
+                        zipFiles.push({
+                            file: file,
+                            name: entry.name,
+                            modified: file.lastModified
+                        });
+                    }
+                }
+
+                if (zipFiles.length === 0) {
+                    alert('No ZIP files found in the selected folder');
+                    return;
+                }
+
+                // Sort by modification time (most recent first)
+                zipFiles.sort((a, b) => b.modified - a.modified);
+
+                // Set the most recent file
+                const latestFile = zipFiles[0].file;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(latestFile);
+                fileInput.files = dataTransfer.files;
+                fileName.textContent = '✓ ' + latestFile.name + ' (auto-selected)';
+
+                alert(`Selected latest ZIP: ${latestFile.name}`);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    alert('Could not access Downloads folder. You can still manually select a file.');
+                }
             }
         });
 
