@@ -244,16 +244,18 @@ def analyze():
             pass
 
 
-@app.route('/download/<file_id>')
+@app.route('/download/<path:file_id>')
 def download_file(file_id):
     """Serve the generated file for viewing/download"""
     try:
-        # Secure the file_id to prevent path traversal
-        safe_file_id = secure_filename(file_id)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_file_id)
+        # Don't use secure_filename since we control the filename and it strips underscores
+        # Just validate that it doesn't contain path traversal characters
+        if '..' in file_id or '/' in file_id or '\\' in file_id:
+            return jsonify({'error': 'Invalid file_id'}), 400
+
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_id)
 
         print(f"📥 Download request for file_id: {file_id}")
-        print(f"🔒 Safe file_id: {safe_file_id}")
         print(f"📂 Looking for file at: {file_path}")
         print(f"❓ File exists: {os.path.exists(file_path)}")
 
