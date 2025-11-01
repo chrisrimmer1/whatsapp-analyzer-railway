@@ -348,18 +348,8 @@
                 }
             }, 2000);
 
-            // After 15 seconds, assume download completed and reset UI
-            setTimeout(() => {
-                clearInterval(interval);
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
-                submitBtn.disabled = false;
-                progressBox.style.display = 'none';
-                progressText.textContent = 'Starting analysis...';
-
-                // Show completion message
-                alert('✅ Analysis complete! Your file has been downloaded.\n\nCheck your Downloads folder for the results.');
-            }, 15000);  // 15 seconds should be enough for most files
+            // Keep spinner running - user can refresh page when download completes
+            // No timeout needed - download will trigger automatically when ready
         });
     </script>
 </body>
