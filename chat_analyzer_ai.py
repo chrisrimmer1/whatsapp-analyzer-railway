@@ -110,7 +110,18 @@ class AIAnalyzer:
                     response_text = response_text[start:].strip()
 
             analyzed_items = json.loads(response_text)
-            return analyzed_items
+
+            # Merge AI results with original data to preserve fields like full_message
+            merged_results = []
+            for i, ai_item in enumerate(analyzed_items):
+                if i < len(chunk):
+                    # Start with original item, then overlay AI analysis
+                    merged = {**chunk[i], **ai_item}
+                    merged_results.append(merged)
+                else:
+                    merged_results.append(ai_item)
+
+            return merged_results
 
         except json.JSONDecodeError as e:
             print(f"❌ JSON parsing error: {e}")
