@@ -121,7 +121,7 @@ def analyze():
         print(f"✓ Found {len(candidates)} candidates")
 
         # Use AI to enhance results
-        print(f"🤖 Analyzing with Claude Haiku 4.5...")
+        print(f"🤖 Analyzing with AI (OpenRouter)...")
         ai_analyzer = AIAnalyzer()
         ai_results = ai_analyzer.analyze_chunk(candidates, query_type)
         print(f"✅ AI analysis complete: {len(ai_results)} refined results")
