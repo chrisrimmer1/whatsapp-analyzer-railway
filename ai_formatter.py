@@ -959,8 +959,9 @@ class AIMarkdownFormatter:
                     url = item.get('url', '')
                     description = item.get('description', 'No description')
                     shared_by = item.get('shared_by', 'Unknown')
-                    context = item.get('context', 'No context available')
                     time = item.get('time', '')
+                    # Use the original message content like action items do
+                    original_content = item.get('full_message', item.get('context', 'No context available'))
 
                     html += f'''
         <div class="link-card">
@@ -969,8 +970,8 @@ class AIMarkdownFormatter:
             <div class="link-meta">
                 <div class="meta-item"><span class="meta-label">Shared by:</span> {shared_by} at {time}</div>
             </div>
-            <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 14px; color: #666;">
-                <span class="meta-label">Context:</span> {context}
+            <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #666; font-style: italic;">
+                "{original_content[:200]}..."
             </div>
         </div>'''
 
