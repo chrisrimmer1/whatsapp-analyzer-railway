@@ -217,13 +217,14 @@ def analyze():
             f.write(html_content)
 
         # Return JSON with download info
-        download_filename = f'{Path(filename).stem}_{query_type}_AI.{output_extension}'
-        file_id = Path(output_path).name
+        file_id = output_filename  # Use the filename we created earlier
+        print(f"📝 Created file: {output_path}")
+        print(f"📤 Returning file_id: {file_id}")
 
         return jsonify({
             'success': True,
             'file_id': file_id,
-            'filename': download_filename,
+            'filename': file_id,  # Just use file_id as the download name
             'download_url': url_for('download_file', file_id=file_id)
         })
 
@@ -251,7 +252,15 @@ def download_file(file_id):
         safe_file_id = secure_filename(file_id)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_file_id)
 
+        print(f"📥 Download request for file_id: {file_id}")
+        print(f"🔒 Safe file_id: {safe_file_id}")
+        print(f"📂 Looking for file at: {file_path}")
+        print(f"❓ File exists: {os.path.exists(file_path)}")
+
         if not os.path.exists(file_path):
+            # List files in temp folder for debugging
+            temp_files = os.listdir(app.config['UPLOAD_FOLDER'])
+            print(f"📁 Files in temp folder: {temp_files}")
             return jsonify({'error': 'File not found'}), 404
 
         # Serve HTML files inline (for viewing in browser), others as attachment
