@@ -183,8 +183,8 @@ Messages to analyze:
 For each URL, determine:
 
 1. What type of content is it? (e.g., "meeting notes", "video", "document", "article", "tool", etc.)
-2. What is the purpose/context? (why was it shared?)
-3. Generate a better description if the original is unclear or empty
+2. Generate a better description if the original is unclear or empty
+3. Summarize the surrounding context from messages before/after (1-2 sentences explaining why it was shared)
 4. Is it important? (true/false based on context)
 
 Return ONLY a JSON array with this structure:
@@ -192,16 +192,16 @@ Return ONLY a JSON array with this structure:
   {{
     "url": "the URL",
     "type": "content type",
-    "purpose": "why it was shared",
+    "context": "summary of why this was shared based on surrounding messages",
     "description": "clear description",
     "important": true/false,
     "shared_by": "person name",
-    "shared_on": "date",
-    "shared_at": "time"
+    "date": "date from the message (DD/MM/YYYY format)",
+    "time": "time from the message"
   }}
 ]
 
-Messages to analyze:
+Messages to analyze (each includes context_before and context_after showing surrounding conversation):
 {json.dumps(chunk, indent=2)}
 """
 

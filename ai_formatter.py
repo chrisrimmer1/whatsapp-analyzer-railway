@@ -109,13 +109,13 @@ class AIMarkdownFormatter:
                 url = item.get('url', '')
                 description = item.get('description', 'No description')
                 shared_by = item.get('shared_by', 'Unknown')
-                purpose = item.get('purpose', 'Not specified')
+                context = item.get('context', 'No context available')
                 time = item.get('time', '')
 
                 md += f"### 🔗 {description}\n\n"
                 md += f"- **URL**: {url}\n"
                 md += f"- **Shared by**: {shared_by} at {time}\n"
-                md += f"- **Purpose**: {purpose}\n\n"
+                md += f"- **Context**: {context}\n\n"
 
         return md
 
@@ -959,7 +959,7 @@ class AIMarkdownFormatter:
                     url = item.get('url', '')
                     description = item.get('description', 'No description')
                     shared_by = item.get('shared_by', 'Unknown')
-                    purpose = item.get('purpose', 'Not specified')
+                    context = item.get('context', 'No context available')
                     time = item.get('time', '')
 
                     html += f'''
@@ -968,7 +968,9 @@ class AIMarkdownFormatter:
             <a href="{url}" target="_blank" class="link-url">{url}</a>
             <div class="link-meta">
                 <div class="meta-item"><span class="meta-label">Shared by:</span> {shared_by} at {time}</div>
-                <div class="meta-item"><span class="meta-label">Purpose:</span> {purpose}</div>
+            </div>
+            <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 14px; color: #666;">
+                <span class="meta-label">Context:</span> {context}
             </div>
         </div>'''
 
