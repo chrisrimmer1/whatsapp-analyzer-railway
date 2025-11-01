@@ -106,11 +106,17 @@ def analyze():
 
                     # Extract the first .txt file
                     txt_filename = txt_files[0]
-                    zip_ref.extract(txt_filename, app.config['UPLOAD_FOLDER'])
 
-                    # Update filepath to point to extracted file
-                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], txt_filename)
-                    filename = os.path.basename(txt_filename)
+                    # Read the file content and write it to a flat location
+                    # This avoids subdirectory issues
+                    txt_content = zip_ref.read(txt_filename)
+                    flat_filename = os.path.basename(txt_filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], flat_filename)
+
+                    with open(filepath, 'wb') as f:
+                        f.write(txt_content)
+
+                    filename = flat_filename
                     print(f"✓ Extracted: {filename}")
             except zipfile.BadZipFile:
                 flash('Invalid ZIP file', 'error')
@@ -154,7 +160,10 @@ def analyze():
 
         # Generate output using AI formatter - always use HTML now
         output_extension = 'html'
-        output_path = filepath.replace('.txt', f'_{query_type}_AI.html')
+        # Use just the filename (not full path) to avoid subdirectory issues
+        base_filename = os.path.basename(filepath).replace('.txt', '')
+        output_filename = f'{base_filename}_{query_type}_AI.html'
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
 
         if query_type == 'actions':
             html_content = AIMarkdownFormatter.format_actions_html(ai_results)
