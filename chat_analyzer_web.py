@@ -38,11 +38,6 @@ QUERY_TYPES = {
         'description': 'All links shared with who posted them and why',
         'icon': '🔗'
     },
-    'questions': {
-        'name': 'Questions',
-        'description': 'Questions asked in the conversation',
-        'icon': '❓'
-    },
     'checkins': {
         'name': 'Check-ins',
         'description': 'Daily mood scores and check-in messages',
@@ -169,8 +164,6 @@ def analyze():
             html_content = AIMarkdownFormatter.format_actions_html(ai_results)
         elif query_type == 'urls':
             html_content = AIMarkdownFormatter.format_urls_html(ai_results)
-        elif query_type == 'questions':
-            html_content = AIMarkdownFormatter.format_questions_html(ai_results)
         elif query_type == 'checkins':
             html_content = AIMarkdownFormatter.format_checkins_html(ai_results)
         else:
