@@ -10,6 +10,7 @@ import os
 import json
 from pathlib import Path
 import tempfile
+import zipfile
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -25,7 +26,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
 
-ALLOWED_EXTENSIONS = {'txt'}
+ALLOWED_EXTENSIONS = {'txt', 'zip'}
 QUERY_TYPES = {
     'actions': {
         'name': 'Action Items',
@@ -89,6 +90,31 @@ def analyze():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
+
+        # Handle ZIP files - extract the .txt file
+        original_filepath = filepath
+        if filename.endswith('.zip'):
+            print(f"📦 Extracting ZIP file: {filename}...")
+            try:
+                with zipfile.ZipFile(filepath, 'r') as zip_ref:
+                    # Find .txt file in the ZIP
+                    txt_files = [f for f in zip_ref.namelist() if f.endswith('.txt') and not f.startswith('__MACOSX')]
+
+                    if not txt_files:
+                        flash('No .txt file found in the ZIP archive', 'error')
+                        return redirect(url_for('index'))
+
+                    # Extract the first .txt file
+                    txt_filename = txt_files[0]
+                    zip_ref.extract(txt_filename, app.config['UPLOAD_FOLDER'])
+
+                    # Update filepath to point to extracted file
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], txt_filename)
+                    filename = os.path.basename(txt_filename)
+                    print(f"✓ Extracted: {filename}")
+            except zipfile.BadZipFile:
+                flash('Invalid ZIP file', 'error')
+                return redirect(url_for('index'))
 
         # Parse and analyze
         print(f"📖 Parsing {filename}...")
@@ -201,6 +227,9 @@ def analyze():
         try:
             if os.path.exists(filepath):
                 os.remove(filepath)
+            # Also clean up original ZIP if it was different
+            if 'original_filepath' in locals() and original_filepath != filepath and os.path.exists(original_filepath):
+                os.remove(original_filepath)
         except:
             pass
 
