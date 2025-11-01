@@ -180,21 +180,19 @@ Messages to analyze:
         """Prompt for URL analysis"""
 
         return f"""Analyze these URLs shared in a WhatsApp chat conversation.
-For each URL, determine:
+For each URL, provide:
 
-1. What type of content is it? (e.g., "meeting notes", "video", "document", "article", "tool", etc.)
-2. Generate a better description if the original is unclear or empty
-3. Summarize the surrounding context from messages before/after (1-2 sentences explaining why it was shared)
-4. Is it important? (true/false based on context)
+1. A clear, concise description of what the link is (e.g., "YouTube video about Skills Sprint CIC", "Government form for CIC registration")
+2. A brief context (one short sentence) explaining why it was shared
+
+Be CONCISE - keep descriptions short and context to one sentence maximum.
 
 Return ONLY a JSON array with this structure:
 [
   {{
     "url": "the URL",
-    "type": "content type",
-    "context": "summary of why this was shared based on surrounding messages",
-    "description": "clear description",
-    "important": true/false,
+    "description": "brief, clear description of the link content",
+    "context": "one brief sentence why it was shared",
     "shared_by": "person name",
     "date": "date from the message (DD/MM/YYYY format)",
     "time": "time from the message"
