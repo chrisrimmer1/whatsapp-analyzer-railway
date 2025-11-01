@@ -32,11 +32,19 @@ def get_credentials():
     if google_token:
         try:
             print(f"DEBUG: Attempting to parse GOOGLE_TOKEN JSON...")
-            token_data = json.loads(google_token)
+            # Try to clean up the token string in case of encoding issues
+            google_token_cleaned = google_token.strip()
+            print(f"DEBUG: First 200 chars: {google_token_cleaned[:200]}")
+            token_data = json.loads(google_token_cleaned)
             print(f"DEBUG: JSON parsed successfully, keys: {list(token_data.keys())}")
             creds = Credentials.from_authorized_user_info(token_data, SCOPES)
             print(f"✓ Loaded credentials from GOOGLE_TOKEN environment variable")
             print(f"DEBUG: Credentials valid: {creds.valid}, expired: {creds.expired if hasattr(creds, 'expired') else 'N/A'}")
+        except json.JSONDecodeError as e:
+            import traceback
+            print(f"❌ JSON decode error in GOOGLE_TOKEN: {e}")
+            print(f"DEBUG: Error at position {e.pos}: '{google_token[max(0, e.pos-20):e.pos+20]}'")
+            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
         except Exception as e:
             import traceback
             print(f"❌ Could not load credentials from GOOGLE_TOKEN env var: {e}")
