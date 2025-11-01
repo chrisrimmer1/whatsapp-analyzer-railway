@@ -87,8 +87,11 @@ class AIAnalyzer:
             creds = get_credentials()
             drive_service = get_drive_service()
             docs_service = get_docs_service()
+            print(f"  ✓ Google services initialized successfully")
         except Exception as e:
+            import traceback
             print(f"  ⚠️  Google services not available: {e}")
+            print(f"  Traceback: {traceback.format_exc()}")
 
         enriched = []
         for i, candidate in enumerate(candidates):
