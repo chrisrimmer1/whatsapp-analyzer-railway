@@ -323,14 +323,16 @@
         const progressBox = document.getElementById('progressBox');
         const progressText = document.getElementById('progressText');
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();  // Prevent default form submission
+
             // Show loading state
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline';
             submitBtn.disabled = true;
             progressBox.style.display = 'block';
 
-            // Simulate progress updates (since we can't get real-time updates from Flask easily)
+            // Simulate progress updates
             let step = 0;
             const steps = [
                 '📖 Parsing chat file...',
@@ -348,14 +350,54 @@
                 }
             }, 2000);
 
-            // After a reasonable time, update message to inform user
-            setTimeout(() => {
-                progressText.textContent = '✅ Processing complete! Check your Downloads folder.\n\nRefresh the page to analyze another file.';
+            try {
+                // Submit form via fetch
+                const formData = new FormData(form);
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
                 clearInterval(interval);
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Download the file
+                    progressText.textContent = '📥 Downloading file...';
+
+                    const downloadResponse = await fetch(result.download_url);
+                    const blob = await downloadResponse.blob();
+
+                    // Create download link
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    // Show success message
+                    progressText.textContent = '✅ Download complete! Check your Downloads folder.\n\nYou can analyze another file now.';
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
+            } catch (error) {
+                clearInterval(interval);
+                progressText.textContent = '❌ Error: ' + error.message;
                 btnText.style.display = 'inline';
                 btnLoading.style.display = 'none';
                 submitBtn.disabled = false;
-            }, 20000);  // 20 seconds - enough time for most analyses
+            }
         });
     </script>
 </body>

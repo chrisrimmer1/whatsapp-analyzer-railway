@@ -129,19 +129,15 @@ def analyze():
         # Generate output using AI formatter
         if query_type == 'checkins':
             # Use HTML format for check-ins
+            output_extension = 'html'
             output_path = filepath.replace('.txt', f'_{query_type}_AI.html')
             html_content = AIMarkdownFormatter.format_checkins_html(ai_results)
 
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-
-            return send_file(
-                output_path,
-                as_attachment=True,
-                download_name=f'{Path(filename).stem}_{query_type}_AI.html'
-            )
         else:
             # Use markdown format for other query types
+            output_extension = 'md'
             output_path = filepath.replace('.txt', f'_{query_type}_AI.md')
 
             if query_type == 'actions':
@@ -157,11 +153,16 @@ def analyze():
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(markdown_content)
 
-            return send_file(
-                output_path,
-                as_attachment=True,
-                download_name=f'{Path(filename).stem}_{query_type}_AI.md'
-            )
+        # Return JSON with download info
+        download_filename = f'{Path(filename).stem}_{query_type}_AI.{output_extension}'
+        file_id = Path(output_path).name
+
+        return jsonify({
+            'success': True,
+            'file_id': file_id,
+            'filename': download_filename,
+            'download_url': url_for('download_file', file_id=file_id)
+        })
 
     except Exception as e:
         flash(f'Error processing file: {str(e)}', 'error')
@@ -174,6 +175,27 @@ def analyze():
                 os.remove(filepath)
         except:
             pass
+
+
+@app.route('/download/<file_id>')
+def download_file(file_id):
+    """Serve the generated file for download"""
+    try:
+        # Secure the file_id to prevent path traversal
+        safe_file_id = secure_filename(file_id)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_file_id)
+
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'File not found'}), 404
+
+        # Send the file and then delete it
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=file_id
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/preview', methods=['POST'])
