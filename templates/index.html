@@ -275,14 +275,25 @@
         const uploadArea = document.getElementById('uploadArea');
         const fileName = document.getElementById('fileName');
 
-        // Check if file is already selected (e.g., after browser back button)
+        // Restore filename from sessionStorage if available (after browser back)
+        const savedFileName = sessionStorage.getItem('uploadedFileName');
+        if (savedFileName) {
+            fileName.textContent = '✓ ' + savedFileName;
+        }
+
+        // Also check if file is currently selected
         if (fileInput.files.length > 0) {
-            fileName.textContent = '✓ ' + fileInput.files[0].name;
+            const currentFileName = fileInput.files[0].name;
+            fileName.textContent = '✓ ' + currentFileName;
+            sessionStorage.setItem('uploadedFileName', currentFileName);
         }
 
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
-                fileName.textContent = '✓ ' + this.files[0].name;
+                const selectedFileName = this.files[0].name;
+                fileName.textContent = '✓ ' + selectedFileName;
+                // Save to sessionStorage for browser back navigation
+                sessionStorage.setItem('uploadedFileName', selectedFileName);
             }
         });
 
@@ -301,7 +312,10 @@
             uploadArea.classList.remove('dragover');
             if (e.dataTransfer.files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
-                fileName.textContent = '✓ ' + e.dataTransfer.files[0].name;
+                const droppedFileName = e.dataTransfer.files[0].name;
+                fileName.textContent = '✓ ' + droppedFileName;
+                // Save to sessionStorage for browser back navigation
+                sessionStorage.setItem('uploadedFileName', droppedFileName);
             }
         });
 
