@@ -4,16 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running the Application
 
+**Live app:** https://whatsapp-chat-analyzer-production-9d30.up.railway.app/
+
 **Local development:**
 ```bash
-python3 chat_analyzer_web.py
+uv sync
+uv run python chat_analyzer_web.py
 ```
-The app runs on port 8080 by default (configurable via `PORT` environment variable).
-
-**Install dependencies:**
-```bash
-pip install -r requirements.txt
-```
+The app automatically finds a free port starting at 8080 (avoids macOS AirPlay conflict on 5000).
 
 **Required environment variables:**
 - `OPENROUTER_API_KEY` - OpenRouter API key (required for AI analysis)
@@ -21,11 +19,11 @@ pip install -r requirements.txt
 **Optional environment variables:**
 - `OPENROUTER_MODEL` - Model to use (defaults to 'anthropic/claude-3.5-haiku')
 - `SECRET_KEY` - Flask session secret (defaults to dev key in development)
-- `PORT` - Server port (defaults to 8080)
+- `PORT` - Server port (if set, uses exact port; otherwise finds free port starting at 8080)
 - `GOOGLE_TOKEN` - Google OAuth token JSON as string (for Google Docs/Drive URL analysis)
 
 **Optional features:**
-- URL content analysis requires Playwright browser: `playwright install chromium`
+- URL content analysis requires Playwright browser: `uv run playwright install chromium`
 - Google Docs/Drive analysis requires GOOGLE_TOKEN environment variable (see GOOGLE_SETUP.md)
 
 ## Architecture Overview

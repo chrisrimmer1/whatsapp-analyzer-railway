@@ -2,6 +2,8 @@
 
 AI-powered WhatsApp chat analyzer that extracts structured information from chat exports using Claude AI.
 
+**Live app:** https://whatsapp-chat-analyzer-production-9d30.up.railway.app/
+
 ## Quick Start
 
 ### 1. Set Up Environment
@@ -17,14 +19,15 @@ Optional environment variables:
 
 **Local development:**
 ```bash
-pip install -r requirements.txt
-python3 chat_analyzer_web.py
+uv sync
+uv run python chat_analyzer_web.py
 ```
 
-The app will start on http://localhost:8080
+The app automatically finds a free port starting at 8080 (avoids macOS AirPlay conflict on 5000).
 
 **Railway deployment:**
 - Set `OPENROUTER_API_KEY` environment variable
+- Optionally set `PORT` to specify an exact port
 - Deploy and the app will auto-configure
 
 ### 3. Analyze Your Chats
@@ -95,8 +98,8 @@ The app will start on http://localhost:8080
 ### Server won't start
 
 - Check console for error messages
-- Make sure all dependencies are installed: `pip install -r requirements.txt`
-- For Playwright features, run: `playwright install chromium`
+- Make sure all dependencies are installed: `uv sync`
+- For Playwright features, run: `uv run playwright install chromium`
 
 ## Technical Details
 
