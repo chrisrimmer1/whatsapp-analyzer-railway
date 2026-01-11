@@ -346,7 +346,7 @@ def preview():
             pass
 
 
-if __name__ == '__main__':
+def main():
     # Create templates directory if it doesn't exist
     os.makedirs('templates', exist_ok=True)
 
@@ -671,7 +671,33 @@ if __name__ == '__main__':
 </html>
         """)
 
-    port = int(os.environ.get('PORT', 8080))
-    print("🌐 Starting web interface...")
-    print(f"📍 Open http://localhost:{port} in your browser")
+    import socket
+
+    def find_free_port(start_port=8080):
+        """Find an available port, starting from start_port."""
+        port = start_port
+        while port < start_port + 100:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                if s.connect_ex(('localhost', port)) != 0:
+                    return port
+            port += 1
+        return start_port  # fallback
+
+    # In reloader subprocess, use the port set by parent process
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        port = int(os.environ['_FLASK_PORT'])
+    else:
+        # Use PORT env var exactly (for Railway), otherwise find a free port
+        if os.environ.get('PORT'):
+            port = int(os.environ['PORT'])
+        else:
+            port = find_free_port(8080)
+        os.environ['_FLASK_PORT'] = str(port)
+        print("🌐 Starting web interface...")
+        print(f"📍 Open http://localhost:{port} in your browser")
+
     app.run(debug=True, port=port, host='0.0.0.0')
+
+
+if __name__ == '__main__':
+    main()
